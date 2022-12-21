@@ -9519,6 +9519,9 @@ document.querySelector('#posts').addEventListener('click', deletePost);
 // Listen for edit state
 document.querySelector('#posts').addEventListener('click', enableEdit);
 
+// List for cancel 
+document.querySelector('.card-form').addEventListener('click', cancelEdit);
+
 // Get Posts
 function getPosts() {
   _http.http.get('http://localhost:3000/posts').then(function (data) {
@@ -9532,19 +9535,37 @@ function getPosts() {
 function submitPost() {
   var title = document.querySelector('#title').value;
   var body = document.querySelector('#body').value;
+  var id = document.querySelector('#id').value;
 
   var data = {
     title: title,
     body: body
 
-    // Create Post
-  };_http.http.post('http://localhost:3000/posts', data).then(function (data) {
-    _ui.ui.showAlert('Post added', 'alert alert-success');
-    _ui.ui.clearFields();
-    getPosts();
-  }).catch(function (err) {
-    return console.log(err);
-  });
+    // Validate input
+  };if (title === '' || body === '') {
+    _ui.ui.showAlert('Please fill in all fields', 'alert alert-danger');
+  } else {
+    // Check for ID
+    if (id === '') {
+      // Create Post
+      _http.http.post('http://localhost:3000/posts', data).then(function (data) {
+        _ui.ui.showAlert('Post added', 'alert alert-success');
+        _ui.ui.clearFields();
+        getPosts();
+      }).catch(function (err) {
+        return console.log(err);
+      });
+    } else {
+      // Update Post
+      _http.http.put('http://localhost:3000/posts/' + id, data).then(function (data) {
+        _ui.ui.showAlert('Post updated', 'alert alert-success');
+        _ui.ui.changeFormState('add');
+        getPosts();
+      }).catch(function (err) {
+        return console.log(err);
+      });
+    }
+  }
 }
 
 // Delete Post
@@ -9579,6 +9600,14 @@ function enableEdit(e) {
 
       // Fill form with current post
     };_ui.ui.fillForm(data);
+  }
+  e.preventDefault();
+}
+
+// Cancel Edit State
+function cancelEdit() {
+  if (e.target.classList.contains('post-cancel')) {
+    _ui.ui.changeFormState('add');
   }
   e.preventDefault();
 }
@@ -9890,6 +9919,14 @@ var UI = function () {
       this.changeFormState('edit');
     }
 
+    // Clear ID hidden value
+
+  }, {
+    key: 'clearIdInput',
+    value: function clearIdInput() {
+      this.idInput.value = '';
+    }
+
     // Change the form state
 
   }, {
@@ -9898,7 +9935,30 @@ var UI = function () {
       if (type === 'edit') {
         this.postSubmit.textContent = 'Update Post';
         this.postSubmit.className = 'post-submit btn btn-warning btn-block';
-      } else {}
+
+        // Create cancel button
+        var button = document.createElement('button');
+        button.className = 'post-cancel btn btn-light btn-block';
+        button.appendChild(document.createTextNode('Cancel Edit'));
+
+        // Get parent
+        var cardForm = document.querySelector('.card-form');
+        // Get element to insert before
+        var formEnd = document.querySelector('.form-end');
+        // Insert cancel button
+        cardForm.insertBefore(button, formEnd);
+      } else {
+        this.postSubmit.textContent = 'Post It';
+        this.postSubmit.className = 'post-submit btn btn-primary btn-block';
+        // Remove cancel btn if it is there
+        if (document.querySelector('.post-cancel')) {
+          document.querySelector('.post-cancel').remove();
+        }
+        // Clear ID from hidden field
+        this.clearIdInput();
+        // Clear text 
+        this.clearFields();
+      }
     }
   }]);
 
