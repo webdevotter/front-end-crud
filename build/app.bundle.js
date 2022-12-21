@@ -9510,9 +9510,32 @@ var _ui = __webpack_require__(335);
 // Get posts on DOM load
 document.addEventListener('DOMContentLoaded', getPosts);
 
+// Listen for add post
+document.querySelector('.post-submit').addEventListener('click', submitPost);
+
+// Get Posts
 function getPosts() {
   _http.http.get('http://localhost:3000/posts').then(function (data) {
     return _ui.ui.showPosts(data);
+  }).catch(function (err) {
+    return console.log(err);
+  });
+}
+
+// Add Posts
+function submitPost() {
+  var title = document.querySelector('#title').value;
+  var body = document.querySelector('#body').value;
+
+  var data = {
+    title: title,
+    body: body
+
+    // Create Post
+  };_http.http.post('http://localhost:3000/posts', data).then(function (data) {
+    _ui.ui.showAlert('Post added', 'alert alert-success');
+    _ui.ui.clearFields();
+    getPosts();
   }).catch(function (err) {
     return console.log(err);
   });
@@ -9758,10 +9781,50 @@ var UI = function () {
       var output = '';
 
       posts.forEach(function (post) {
-        output += '\n      <div class="card mb-3">\n        <div class="card-body">\n          <h4 class="card-title">' + post.title + '</h4>\n          <p class="card-text">' + post.body + '</p>\n        </div>\n      </div>\n      ';
+        output += '\n      <div class="card mb-3">\n        <div class="card-body">\n          <h4 class="card-title">' + post.title + '</h4>\n          <p class="card-text">' + post.body + '</p>\n          <a href="#" class="edit card-link" data-id="' + post.id + '">\n          <i class="fa fa-pencil"></i></a>\n          <a href="#" class="delete card-link" data-id="' + post.id + '">\n          <i class="fa fa-remove"></i></a>\n        </div>\n      </div>\n      ';
       });
 
       this.post.innerHTML = output;
+    }
+  }, {
+    key: 'showAlert',
+    value: function showAlert(message, className) {
+      var _this = this;
+
+      this.clearAlert();
+
+      // Create div
+      var div = document.createElement('div');
+      // Add classes
+      div.className = className;
+      // Add text
+      div.appendChild(document.createTextNode(message));
+      // Get parent
+      var container = document.querySelector('.postContainer');
+      // Get posts
+      var posts = document.querySelector('#posts');
+      // Insert alert div
+      container.insertBefore(div, posts);
+
+      // Timeout
+      setTimeout(function () {
+        _this.clearAlert();
+      }, 3000);
+    }
+  }, {
+    key: 'clearAlert',
+    value: function clearAlert() {
+      var currentAlert = document.querySelector('.alert');
+
+      if (currentAlert) {
+        currentAlert.remove();
+      }
+    }
+  }, {
+    key: 'clearFields',
+    value: function clearFields() {
+      this.titleInput.value = '';
+      this.bodyInput.value = '';
     }
   }]);
 
