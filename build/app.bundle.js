@@ -9513,6 +9513,12 @@ document.addEventListener('DOMContentLoaded', getPosts);
 // Listen for add post
 document.querySelector('.post-submit').addEventListener('click', submitPost);
 
+// Listen for delete
+document.querySelector('#posts').addEventListener('click', deletePost);
+
+// Listen for edit state
+document.querySelector('#posts').addEventListener('click', enableEdit);
+
 // Get Posts
 function getPosts() {
   _http.http.get('http://localhost:3000/posts').then(function (data) {
@@ -9539,6 +9545,42 @@ function submitPost() {
   }).catch(function (err) {
     return console.log(err);
   });
+}
+
+// Delete Post
+
+function deletePost(e) {
+  e.preventDefault();
+  if (e.target.parentElement.classList.contains('delete')) {
+    var id = e.target.parentElement.dataset.id;
+    if (confirm('Are You Sure?')) {
+      _http.http.delete('http://localhost:3000/posts/' + id).then(function (data) {
+        _ui.ui.showAlert('Post Removed', 'alert alert-success');
+        getPosts();
+      }).catch(function (err) {
+        return console.log(err);
+      });
+    }
+  }
+}
+
+// Edit Post
+
+function enableEdit(e) {
+  if (e.target.parentElement.classList.contains('edit')) {
+    var id = e.target.parentElement.dataset.id;
+    var title = e.target.parentElement.previousElementSibling.previousElementSibling.textContent;
+    var body = e.target.parentElement.previousElementSibling.textContent;
+
+    var data = {
+      id: id,
+      title: title,
+      body: body
+
+      // Fill form with current post
+    };_ui.ui.fillForm(data);
+  }
+  e.preventDefault();
 }
 
 /***/ }),
@@ -9775,6 +9817,9 @@ var UI = function () {
     title.forState = 'add';
   }
 
+  // Show all posts
+
+
   _createClass(UI, [{
     key: 'showPosts',
     value: function showPosts(posts) {
@@ -9786,6 +9831,9 @@ var UI = function () {
 
       this.post.innerHTML = output;
     }
+
+    // Show alert message
+
   }, {
     key: 'showAlert',
     value: function showAlert(message, className) {
@@ -9820,11 +9868,37 @@ var UI = function () {
         currentAlert.remove();
       }
     }
+
+    // Clear all fields
+
   }, {
     key: 'clearFields',
     value: function clearFields() {
       this.titleInput.value = '';
       this.bodyInput.value = '';
+    }
+
+    // Fill form to edit
+
+  }, {
+    key: 'fillForm',
+    value: function fillForm(data) {
+      this.titleInput.value = data.title;
+      this.bodyInput.value = data.body;
+      this.idInput.value = data.id;
+
+      this.changeFormState('edit');
+    }
+
+    // Change the form state
+
+  }, {
+    key: 'changeFormState',
+    value: function changeFormState() {
+      if (type === 'edit') {
+        this.postSubmit.textContent = 'Update Post';
+        this.postSubmit.className = 'post-submit btn btn-warning btn-block';
+      } else {}
     }
   }]);
 

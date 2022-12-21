@@ -1,16 +1,6 @@
 {
   "posts": [
     {
-      "id": 2,
-      "title": "Post Two",
-      "body": "This is post two"
-    },
-    {
-      "title": "Post Three",
-      "body": "This is post three",
-      "id": 3
-    },
-    {
       "title": "Post Four",
       "body": "This is post four",
       "id": 4
@@ -19,6 +9,21 @@
       "title": "Post One",
       "body": "This is post one",
       "id": 5
+    },
+    {
+      "title": "Post Two ",
+      "body": "This is post two",
+      "id": 6
+    },
+    {
+      "title": "",
+      "body": "",
+      "id": 7
+    },
+    {
+      "title": "",
+      "body": "",
+      "id": 8
     }
   ]
 }
